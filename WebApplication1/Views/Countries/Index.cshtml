@@ -1,0 +1,161 @@
+﻿@model IEnumerable<WebApplication1.Models.Country>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<div id="country-map" style="margin-top: 20px;"></div>
+<div id="country-grid" style="margin-top: 20px;"></div>
+
+<script>
+    $(document).ready(() => {
+        /**
+         * Create the map
+         */
+        createMap();
+        createGrid();
+    });
+
+    function createMap() {
+        var map = AmCharts.makeChart("country-map", {
+            "type": "map",
+            "theme": "light",
+            "projection": "eckert3",
+            "dataProvider": {
+                "map": "worldLow",
+                "getAreasFromMap": true
+            },
+            "areasSettings": {
+                "selectedColor": "#CC0000",
+                "selectable": true
+            },
+            /**
+             * Add click event to track country selection/unselection
+             */
+            "listeners": [{
+                "event": "clickMapObject",
+                "method": function (e) {
+
+                    // Ignore any click not on area
+                    if (e.mapObject.objectType !== "MapArea")
+                        return;
+
+                    var area = e.mapObject;
+
+                    // Toggle showAsSelected
+                    area.showAsSelected = !area.showAsSelected;
+                    e.chart.returnInitialColor(area);
+
+                    // Update the list
+                    var sc = JSON.stringify(getSelectedCountries());
+                    console.log(sc);
+                }
+            }]
+        });
+
+        /**
+         * Function which extracts currently selected country list.
+         * Returns array consisting of country ISO2 codes
+         */
+        function getSelectedCountries() {
+            var selected = [];
+            for (var i = 0; i < map.dataProvider.areas.length; i++) {
+                if (map.dataProvider.areas[i].showAsSelected)
+                    selected.push(map.dataProvider.areas[i].id);
+            }
+            return selected;
+        }
+    }
+
+    function createGrid() {
+
+        var dataSource = new kendo.data.DataSource({
+            pageSize: 10,
+            transport: {
+                read: {
+                    url: '@Url.Action("GetCountries", "Countries")',
+                    dataType: "json",
+                    type: "get"
+                }
+            },
+            change: e => {
+                if (e.action === "itemchange") {
+                    ajaxPostAsync("UpdateCountry", e.items[0], (err, result) => {
+                        if (err) {
+                            return console.log(err);
+                        }
+                        $("#country-grid").data("kendoGrid").refresh();
+                    });
+                }
+            }
+        });
+
+        $("#country-grid").kendoGrid({
+            height: 400,
+            selectable: "multiple cell",
+            editable: "incell",
+            allowCopy: true,
+            pageable: true,
+            sortable: true,
+            columns: [
+                { field: "Flag" },
+                { field: "FullName" },
+                { field: "CapitalCity" },
+                { field: "Population" }
+            ],
+            dataSource: dataSource
+        });
+
+        var grid = $("#country-grid").data("kendoGrid");
+    }
+
+    function createInitialData() {
+        var data = createCountryInformation();
+        console.log(data);
+
+        ajaxPostAsync("CreateInitialData", data, (err, result) => {
+            if (err) {
+                return console.log(err);
+            }
+            console.log(result);
+        });
+    }
+
+    function ajaxPostAsync(methodName, params, callback) {
+        $.ajax({
+            url: '@Url.Action("strMethodName", "Countries")'.replace("strMethodName", methodName),
+            type: "POST",
+            data: JSON.stringify(params),
+            dataType: "json",
+            traditional: true,
+            contentType: "application/json; charset=utf-8",
+            success: success => {
+                callback(null, success);
+            },
+            error: error => {
+                callback(error);
+            }
+        });
+    }
+
+    function createCountryInformation() {
+        var _countries = [];
+
+        countries.forEach(country => {
+            var _country = {};
+            _country["Name"] = country.name;
+            _country["FullName"] = country.nativeName;
+            _country["Code"] = country.alpha2Code;
+            _country["Currency"] = country.currencies[0].name + " (" + country.currencies[0].symbol + ")";
+            _country["Flag"] = country.alpha2Code + "-128.png";
+            _country["Language"] = country.languages[0].name;
+            _country["CapitalCity"] = country.capital;
+            _country["Population"] = country.population;
+            _country["Region"] = country.region;
+
+            _countries.push(_country);
+        });
+
+        return _countries;
+    }
+</script>

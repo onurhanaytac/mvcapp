@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 32 64" style="enable-background:new 0 0 32 64;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#C02E2E;}
+	.st1{fill:none;stroke:#FFFFFF;stroke-width:0.4485;stroke-miterlimit:10;}
+	.st2{fill:#FFFFFF;}
+	.st3{fill:#BE0027;}
+	.st4{fill:#3B72B1;}
+	.st5{fill:#60AE42;}
+</style>
+<g>
+	<circle class="st0" cx="16" cy="48" r="16"/>
+	<g>
+		<path class="st1" d="M24.7,58.4H7.3c-0.4,0-0.7-0.3-0.7-0.7V38.3c0-0.4,0.3-0.7,0.7-0.7h17.3c0.4,0,0.7,0.3,0.7,0.7v19.5
+			C25.3,58.1,25,58.4,24.7,58.4L24.7,58.4z M24.7,58.4"/>
+		<path class="st2" d="M18,43.7H14c-0.7,0-1.3-0.6-1.3-1.3v-0.5c0-0.2,0.2-0.4,0.4-0.4c0.2,0,0.4,0.2,0.4,0.4v0.5
+			c0,0.3,0.2,0.5,0.5,0.5H18c0.3,0,0.5-0.2,0.5-0.5v-0.5c0-0.2,0.2-0.4,0.4-0.4c0.2,0,0.4,0.2,0.4,0.4v0.5
+			C19.2,43.1,18.7,43.7,18,43.7L18,43.7z M18,43.7"/>
+		<path class="st2" d="M18,54.1H14c-0.7,0-1.3-0.6-1.3-1.3v-0.5c0-0.2,0.2-0.4,0.4-0.4c0.2,0,0.4,0.2,0.4,0.4v0.5
+			c0,0.3,0.2,0.5,0.5,0.5H18c0.3,0,0.5-0.2,0.5-0.5v-0.5c0-0.2,0.2-0.4,0.4-0.4c0.2,0,0.4,0.2,0.4,0.4v0.5
+			C19.2,53.5,18.7,54.1,18,54.1L18,54.1z M18,54.1"/>
+		<rect x="6.7" y="47.6" class="st2" width="18.7" height="0.7"/>
+	</g>
+</g>
+<g>
+	<circle class="st3" cx="67.8" cy="60.5" r="9.2"/>
+	<text transform="matrix(1 0 0 1 64.6447 65.5745)" class="st2" style="font-family:'MyriadPro-Regular'; font-size:14px;">5</text>
+</g>
+<g>
+	<circle class="st4" cx="16" cy="16" r="16"/>
+	<g>
+		<path class="st1" d="M24.7,26.4H7.3c-0.4,0-0.7-0.3-0.7-0.7V6.3c0-0.4,0.3-0.7,0.7-0.7h17.3c0.4,0,0.7,0.3,0.7,0.7v19.5
+			C25.3,26.1,25,26.4,24.7,26.4L24.7,26.4z M24.7,26.4"/>
+		<path class="st2" d="M18,11.7H14c-0.7,0-1.3-0.6-1.3-1.3V9.9c0-0.2,0.2-0.4,0.4-0.4c0.2,0,0.4,0.2,0.4,0.4v0.5
+			c0,0.3,0.2,0.5,0.5,0.5H18c0.3,0,0.5-0.2,0.5-0.5V9.9c0-0.2,0.2-0.4,0.4-0.4c0.2,0,0.4,0.2,0.4,0.4v0.5
+			C19.2,11.1,18.7,11.7,18,11.7L18,11.7z M18,11.7"/>
+		<path class="st2" d="M18,22.1H14c-0.7,0-1.3-0.6-1.3-1.3v-0.5c0-0.2,0.2-0.4,0.4-0.4c0.2,0,0.4,0.2,0.4,0.4v0.5
+			c0,0.3,0.2,0.5,0.5,0.5H18c0.3,0,0.5-0.2,0.5-0.5v-0.5c0-0.2,0.2-0.4,0.4-0.4c0.2,0,0.4,0.2,0.4,0.4v0.5
+			C19.2,21.5,18.7,22.1,18,22.1L18,22.1z M18,22.1"/>
+		<rect x="6.7" y="15.6" class="st2" width="18.7" height="0.7"/>
+	</g>
+</g>
+<g>
+	<circle class="st5" cx="67.8" cy="26.5" r="9.2"/>
+	<text transform="matrix(1 0 0 1 64.6447 31.5745)" class="st2" style="font-family:'MyriadPro-Regular'; font-size:14px;">5</text>
+</g>
+</svg>
