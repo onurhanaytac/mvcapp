@@ -40,3 +40,36 @@ textarea {
   border: 1px solid #ddd;
   margin: 0 auto;
 }
+
+/* COMMAND BUTTON
+=============================================================
+*/
+tr {
+    height: 74px;
+}
+
+td {
+    border-bottom: 1px solid #f0f0f0 !important;
+}
+
+.command-icon-btn {
+    background-color: transparent !important;
+    border: none !important;
+    padding-right: 1px !important;
+    min-width: 0px !important;
+    display: none !important;
+    margin: -2px !important;
+}
+
+.command-icon-btn:hover {
+    background-color: #0071bc !important;
+}
+
+.showme.command-icon-btn {
+    display: inline-block !important;
+}
+
+.disabled {
+    pointer-events: none;
+    opacity: 0.6;
+}

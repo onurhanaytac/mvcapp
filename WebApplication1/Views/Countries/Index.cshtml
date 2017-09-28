@@ -10,8 +10,16 @@
 <script>
     $(document).ready(() => {
         /**
-         * Create the map
+         * Create app
          */
+        //createInitialData((err, result) => {
+        //    if (err) {
+        //        return console.log(err);
+        //    }
+        //    createMap();
+        //    createGrid();
+        //});
+
         createMap();
         createGrid();
     });
@@ -47,8 +55,15 @@
                     e.chart.returnInitialColor(area);
 
                     // Update the list
-                    var sc = JSON.stringify(getSelectedCountries());
-                    console.log(sc);
+                    var filters = getSelectedCountries();
+                    var grid = $("#country-grid").data("kendoGrid");
+                    var dataSource = grid.dataSource;
+
+                    dataSource.filter({
+                        // leave data items which are "Food" or "Tea"
+                        logic: "or",
+                        filters: filters
+                    });
                 }
             }]
         });
@@ -61,7 +76,7 @@
             var selected = [];
             for (var i = 0; i < map.dataProvider.areas.length; i++) {
                 if (map.dataProvider.areas[i].showAsSelected)
-                    selected.push(map.dataProvider.areas[i].id);
+                    selected.push({ field: "Code", operator: "startswith", value: map.dataProvider.areas[i].id });
             }
             return selected;
         }
@@ -86,6 +101,14 @@
                         }
                         $("#country-grid").data("kendoGrid").refresh();
                     });
+                } else if (e.action === "remove") {
+                    var dataItem = e.items[0];
+                    ajaxPostAsync("DeleteCountry", {ID: dataItem.ID}, (err, result) => {
+                        if (err) {
+                            $("#country-grid").data("kendoGrid").read();
+                            return console.log(err);
+                        }
+                    });
                 }
             }
         });
@@ -93,31 +116,53 @@
         $("#country-grid").kendoGrid({
             height: 400,
             selectable: "multiple cell",
-            editable: "incell",
+            editable: {
+                mode: "incell",
+                confirmation: false
+            },
             allowCopy: true,
             pageable: true,
             sortable: true,
+            confirmation: "Are you sure?",
             columns: [
-                { field: "Flag" },
+                {
+                    field: "Flag",
+                    template: `<img src="../../Content/flags/#:Flag#" height="64" width="128">`,
+                    width: 140
+                },
                 { field: "FullName" },
                 { field: "CapitalCity" },
-                { field: "Population" }
+                {
+                    field: "Population",
+                    format: "{0:n0}",
+                },
+                {
+                    command: [
+                        { name: "destroy", text: " ", className: "command-icon-btn" }
+                    ],
+                    width: 40
+                }
             ],
             dataSource: dataSource
         });
 
-        var grid = $("#country-grid").data("kendoGrid");
+        $("#country-grid tbody").on("mouseenter", "tr", function (e) {
+            $(".k-button", e.currentTarget).addClass("showme");
+        });
+
+        $("#country-grid tbody").on("mouseleave", "tr", function (e) {
+            $(".k-button", e.currentTarget).removeClass("showme");
+        });
     }
 
-    function createInitialData() {
+    function createInitialData(callback) {
         var data = createCountryInformation();
-        console.log(data);
 
         ajaxPostAsync("CreateInitialData", data, (err, result) => {
             if (err) {
-                return console.log(err);
+                return callback(err);
             }
-            console.log(result);
+            callback(null, result);
         });
     }
 
@@ -158,4 +203,15 @@
 
         return _countries;
     }
+    function showHideCommandButtons(row) {
+        var tree = $("#country-grid").data("kendoGrid");
+        var tableRows = tree.tbody.find('tr');
+
+        var buttonsToHide = ["movedown", "moveup", "edit", "destroy"];
+
+        _.each(buttonsToHide, button => {
+            $(tableRows[0]).find(`[data-command='` + button + `']`).removeClass("showme");
+        });
+    }
+
 </script>

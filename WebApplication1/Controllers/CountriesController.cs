@@ -29,6 +29,17 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost]
+        public ActionResult DeleteCountry(int id)
+        {
+            var result = false;
+            Country country = db.Countries.Find(id);
+            db.Countries.Remove(country);
+            db.SaveChanges();
+            result = true;
+            return Json(new { success = result }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
         public ActionResult UpdateCountry (Country country)
         {
             var result = false;
