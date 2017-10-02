@@ -6,7 +6,14 @@
 
 <div id="country-map" style="margin-top: 20px;"></div>
 <div id="country-grid" style="margin-top: 20px;"></div>
-<div id="dialog"></div>
+<div id="dialog"></div>'
+<div id="add-new-btn-container">
+    <button onclick="addNewCountry(event)" class="fixed-new-btn">
+        <span class="k-icon k-i-plus icon-font-32"></span>
+    </button>
+</div>
+
+<section id="confirm-section"></section>
 
 <script>
     var filterOptions = {
@@ -247,6 +254,87 @@
         filterOptions.Page = e.page;
     }
 
+    function addNewCountry() {
+
+        var confirmElement = $("#confirm");
+
+        if (!confirmElement.length) {
+            $("#confirm-section").append(`<div id="confirm"></div>`);
+            confirmElement = $("#confirm");
+        }
+
+        confirmElement.kendoConfirm({
+            title: "Add New Country!",
+            content: `
+                <form id="new-country-form">
+                    <div class ="form-group">
+                        <input type="text" class ="form-control" id="Name" name="Name" placeholder="Name" required>
+                    </div>
+
+                    <div class ="form-group">
+                        <input type="text" class ="form-control" id="FullName" name="FullName" placeholder="FullName" required>
+                    </div>
+
+                    <div class ="form-group">
+                        <input type="text" class ="form-control" id="Code" name="Code" placeholder="Code" required>
+                    </div>
+
+                    <div class ="form-group">
+                        <input type="text" class ="form-control" id="Currency" name="Currency" placeholder="Currency" required>
+                    </div>
+
+                    <div class ="form-group">
+                        <input type="text" class ="form-control" id="Language" name="Language" placeholder="Language" required>
+                    </div>
+
+                    <div class ="form-group">
+                        <input type="text" class ="form-control" id="CapitalCity" name="CapitalCity" placeholder="CapitalCity" required>
+                    </div>
+
+                    <div class ="form-group">
+                        <input type="text" class ="form-control" id="Population" name="Population" placeholder="Population" required>
+                    </div>
+
+                    <div class ="form-group">
+                        <input type="text" class ="form-control" id="Region" name="Region" placeholder="Region" required>
+                    </div>
+
+                    <div class ="form-group" style="width: calc(100% - 25px);">
+                        <label>Flag</label>
+                        <input name="files" id="files" type="file" />
+                    </div>
+                </form>
+            `,
+            messages: {
+                okText: "ADD"
+            }
+        }).data("kendoConfirm")
+            .result.done(() => {
+                var form = $("#new-country-form");
+
+                if (!form.valid()) {
+                    return addNewCountry();
+                }
+
+                var data = form.serialize();
+                console.log(data);
+                
+            })
+            .fail(() => {
+                console.log("User rejected");
+            });
+
+        $("#files").kendoUpload({
+            async: {
+                saveUrl: "chunkSave",
+                removeUrl: "remove",
+                chunkSize: 11000,
+            },
+            directory: true,
+            directoryDrop: true
+        });
+    }
+
     function createInitialData(callback) {
         var data = createCountryInformation();
 
@@ -357,6 +445,10 @@
     $(window).resize(e => {
         var width = e.target.innerWidth;
         var grid = $("#country-grid").data("kendoGrid");
+
+        if (!grid) {
+            return;
+        }
 
         switch (true) {
             case (width < 500):
