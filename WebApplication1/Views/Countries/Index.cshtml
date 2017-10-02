@@ -6,8 +6,19 @@
 
 <div id="country-map" style="margin-top: 20px;"></div>
 <div id="country-grid" style="margin-top: 20px;"></div>
+<div id="dialog"></div>
 
 <script>
+    var filterOptions = {
+        SortOrder: "Population_desc",
+        SearchString: "",
+        Page: 1,
+        PageSize: 10,
+        SelectedCountries: []
+    }
+
+    var topFivePopulated;
+
     $(document).ready(() => {
         /**
          * Create app
@@ -22,6 +33,7 @@
 
         createMap();
         createGrid();
+        addSearchInputEvents();
     });
 
     function createMap() {
@@ -55,15 +67,20 @@
                     e.chart.returnInitialColor(area);
 
                     // Update the list
-                    var filters = getSelectedCountries();
-                    var grid = $("#country-grid").data("kendoGrid");
-                    var dataSource = grid.dataSource;
+                    var selectedCountries = getSelectedCountries();
+                    //var grid = $("#country-grid").data("kendoGrid");
+                    //var dataSource = grid.dataSource;
 
-                    dataSource.filter({
-                        // leave data items which are "Food" or "Tea"
-                        logic: "or",
-                        filters: filters
-                    });
+                    //dataSource.filter({
+                    //    // leave data items which are "Food" or "Tea"
+                    //    logic: "or",
+                    //    filters: selectedCountries
+                    //});
+
+                    filterOptions.SelectedCountries = selectedCountries;
+                    filterOptions.Page = 1;
+                    $("#country-grid").data("kendoGrid").dataSource.page(1);
+                    //$("#country-grid").data("kendoGrid").dataSource.read();
                 }
             }]
         });
@@ -73,24 +90,47 @@
          * Returns array consisting of country ISO2 codes
          */
         function getSelectedCountries() {
-            var selected = [];
+            var selected = new Array();
             for (var i = 0; i < map.dataProvider.areas.length; i++) {
                 if (map.dataProvider.areas[i].showAsSelected)
-                    selected.push({ field: "Code", operator: "startswith", value: map.dataProvider.areas[i].id });
+                    //selected.push({ field: "Code", operator: "startswith", value: map.dataProvider.areas[i].id });
+                    selected.push(map.dataProvider.areas[i].id);
             }
             return selected;
         }
     }
 
     function createGrid() {
-
         var dataSource = new kendo.data.DataSource({
-            pageSize: 10,
+            pageSize: filterOptions.PageSize,
             transport: {
                 read: {
                     url: '@Url.Action("GetCountries", "Countries")',
                     dataType: "json",
-                    type: "get"
+                    type: "get",
+                    traditional: true,
+                    data: filterOptions
+                },
+                parameterMap: (data, type) => {
+                    if (type === "read") {
+                        return filterOptions;
+                    }
+
+                    return data;
+                }
+            },
+            serverPaging: true,
+            //serverFiltering: true,
+            schema: {
+                model: {
+                    id: "ID"
+                },
+                total: response => {
+                    return response.total; // total is returned in the "total" field of the response
+                },
+                data: response => {
+                    setTopFivePopulated(response.topFivePopulated);
+                    return response.data;
                 }
             },
             change: e => {
@@ -114,8 +154,7 @@
         });
 
         $("#country-grid").kendoGrid({
-            height: 400,
-            selectable: "multiple cell",
+            height: 450,
             editable: {
                 mode: "incell",
                 confirmation: false
@@ -128,7 +167,10 @@
                 {
                     field: "Flag",
                     template: `<img src="../../Content/flags/#:Flag#" height="64" width="128">`,
-                    width: 140
+                    width: 140,
+                    editable: dataItem => {
+                        return false;
+                    }
                 },
                 { field: "FullName" },
                 { field: "CapitalCity" },
@@ -138,12 +180,16 @@
                 },
                 {
                     command: [
+                        { name: "info", text: " ", className: "command-icon-btn", iconClass: "k-icon k-i-info", click: showInfo },
                         { name: "destroy", text: " ", className: "command-icon-btn" }
                     ],
-                    width: 40
+                    width: 80
                 }
             ],
-            dataSource: dataSource
+            dataSource: dataSource,
+            sort: onGridSort,
+            page: onPageClick,
+            dataBound: colorizeRows
         });
 
         $("#country-grid tbody").on("mouseenter", "tr", function (e) {
@@ -153,6 +199,52 @@
         $("#country-grid tbody").on("mouseleave", "tr", function (e) {
             $(".k-button", e.currentTarget).removeClass("showme");
         });
+
+        $(window).trigger("resize");
+    }
+
+    var delay = (function () {
+        var timer = 0;
+        return function (callback, ms) {
+            clearTimeout(timer);
+            timer = setTimeout(callback, ms);
+        };
+    })();
+
+    function addSearchInputEvents() {
+        var input = $("#search-input");
+        input.keyup(e => {
+            filterOptions.SearchString = input.val();
+            delay(() => {
+                filterOptions.Page = 1;
+                $("#country-grid").data("kendoGrid").dataSource.read();
+            },500);
+        });
+    }
+
+    function setTopFivePopulated(topFive) {
+        topFivePopulated = topFive
+    }
+
+    function colorizeRows() {
+        var grid = $("#country-grid").data("kendoGrid");
+        var dataSource = grid.dataSource;
+
+        var topFiveInTheGrid = _.compact(_.map(topFivePopulated, item => {
+            return dataSource.get(item.ID);
+        }));
+
+        _.each(topFiveInTheGrid, item => {
+            $("#country-grid").find('[data-uid="' + item.uid + '"]').addClass("top-five");
+        });
+    }
+
+    function onGridSort(e) {
+        filterOptions.SortOrder = e.sort.field + "_" + e.sort.dir;
+    }
+
+    function onPageClick(e) {
+        filterOptions.Page = e.page;
     }
 
     function createInitialData(callback) {
@@ -203,6 +295,7 @@
 
         return _countries;
     }
+
     function showHideCommandButtons(row) {
         var tree = $("#country-grid").data("kendoGrid");
         var tableRows = tree.tbody.find('tr');
@@ -213,5 +306,79 @@
             $(tableRows[0]).find(`[data-command='` + button + `']`).removeClass("showme");
         });
     }
+
+    function showInfo(e) {
+        var dataItem = _.clone($("#country-grid").data("kendoGrid").dataItem($(e.target).closest("tr")));
+
+        _.each(dataItem, (item, i) => {
+            if (!item) {
+                dataItem[i] = "N/A"
+            }
+        });
+        dataItem.Population = kendo.toString(dataItem.Population, "n0")
+
+        $("#dialog").kendoDialog({
+            title: "Country Detail",
+            content:
+                '<div style="width: 400px; height: 200px;">'
+                    +
+                    '<div class="info-item"><span>Code   </span><strong style="float: right;">' + dataItem.Code + '</strong></div>'
+                    +
+                    '</br>'
+                    +
+                    '<div class="info-item"><span>Name   </span><strong style="float: right;">' + dataItem.Name + '</strong></div>'
+                    +
+                    '</br>'
+                    +
+                    '<div class="info-item"><span>FullName   </span><strong style="float: right;">' + dataItem.FullName + '</strong></div>'
+                    +
+                    '</br>'
+                    +
+                    '<div class="info-item"><span>Currency   </span><strong style="float: right;">' + dataItem.Currency + '</strong></div>'
+                    +
+                    '</br>'
+                    +
+                    '<div class="info-item"><span>CapitalCity   </span><strong style="float: right;">' + dataItem.CapitalCity + '</strong></div>'
+                    +
+                    '</br>'
+                    +
+                    '<div class="info-item"><span>Region   </span><strong style="float: right;">' + dataItem.Region + '</strong></div>'
+                    +
+                    '</br>'
+                    +
+                    '<div class="info-item"><span>Population   </span><strong style="float: right;">' + dataItem.Population + '</strong></div>'
+                    +
+                '</div>'
+        });
+
+        $("#dialog").data("kendoDialog").open();
+    }
+
+    $(window).resize(e => {
+        var width = e.target.innerWidth;
+        var grid = $("#country-grid").data("kendoGrid");
+
+        switch (true) {
+            case (width < 500):
+                grid.hideColumn("Flag");
+                grid.hideColumn("Population");
+                grid.hideColumn("CapitalCity");
+                break;
+            case (width < 600):
+                grid.hideColumn("Population");
+                grid.hideColumn("CapitalCity");
+                grid.showColumn("Flag");
+                break;
+            case (width < 768):
+                grid.hideColumn("CapitalCity");
+                grid.showColumn("Population");
+                grid.showColumn("Flag");
+                break;
+            default:
+                grid.showColumn("Population");
+                grid.showColumn("Flag");
+                grid.showColumn("CapitalCity");
+        }
+    });
 
 </script>

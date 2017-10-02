@@ -35,7 +35,7 @@ textarea {
 }
 
 #country-map {
-  max-width: 1100px;
+  max-width: 1140px;
   height: 400px;
   border: 1px solid #ddd;
   margin: 0 auto;
@@ -44,6 +44,9 @@ textarea {
 /* COMMAND BUTTON
 =============================================================
 */
+thead > tr {
+    height: 34px;
+}
 tr {
     height: 74px;
 }
@@ -59,6 +62,7 @@ td {
     min-width: 0px !important;
     display: none !important;
     margin: -2px !important;
+    padding-left: 10px !important;
 }
 
 .command-icon-btn:hover {
@@ -69,7 +73,24 @@ td {
     display: inline-block !important;
 }
 
+.command-icon-btn.k-grid-delete {
+    margin-left: 5px !important;
+}
+
 .disabled {
     pointer-events: none;
     opacity: 0.6;
+}
+
+tr.top-five td{
+    color: black;
+    background-color: #F5F6CE !important;
+}
+
+a.k-button {
+    background-color: #f0f0f0 !important;
+}
+
+.info-item {
+    margin: 0px;
 }

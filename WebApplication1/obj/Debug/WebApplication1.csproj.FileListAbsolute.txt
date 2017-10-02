@@ -55,3 +55,7 @@ c:\users\oska\documents\visual studio 2015\Projects\WebApplication1\WebApplicati
 c:\users\oska\documents\visual studio 2015\Projects\WebApplication1\WebApplication1\bin\EntityFramework.SqlServer.dll
 c:\users\oska\documents\visual studio 2015\Projects\WebApplication1\WebApplication1\bin\EntityFramework.xml
 c:\users\oska\documents\visual studio 2015\Projects\WebApplication1\WebApplication1\bin\EntityFramework.SqlServer.xml
+C:\Users\Oska\documents\visual studio 2015\Projects\WebApplication1\WebApplication1\bin\PagedList.dll
+C:\Users\Oska\documents\visual studio 2015\Projects\WebApplication1\WebApplication1\bin\PagedList.Mvc.dll
+C:\Users\Oska\documents\visual studio 2015\Projects\WebApplication1\WebApplication1\bin\PagedList.xml
+C:\Users\Oska\documents\visual studio 2015\Projects\WebApplication1\WebApplication1\bin\PagedList.Mvc.xml

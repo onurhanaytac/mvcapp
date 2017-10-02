@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 using WebApplication1.DAL;
 using WebApplication1.Models;
+using PagedList;
 
 namespace WebApplication1.Controllers
 {
@@ -22,10 +23,69 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetCountries()
+        public ActionResult GetCountries(FilterOptions filterOptions)
         {
-            List<Country> result = db.Countries.OrderByDescending(i => i.Population).ToList();
-            return Json(result , JsonRequestBehavior.AllowGet);
+            ViewBag.CurrentSort = filterOptions.SortOrder;
+            ViewBag.NameSortParm = String.IsNullOrEmpty(filterOptions.SortOrder) ? "population_desc" : "";
+            ViewBag.DateSortParm = filterOptions.SortOrder == "Date" ? "date_desc" : "Date";
+
+            if (filterOptions.SearchString != null)
+            {
+                filterOptions.Page = 1;
+            }
+
+
+            var countries = from s in db.Countries
+                           select s;
+
+            if (filterOptions.SelectedCountries != null && filterOptions.SelectedCountries.Any())
+            {
+                countries = from p in countries
+                              where filterOptions.SelectedCountries.Any(val => p.Code.Contains(val))
+                              select p; ;
+            }
+
+            if (!String.IsNullOrEmpty(filterOptions.SearchString))
+            {
+                countries = countries.Where(s => 
+                    s.Code.Contains(filterOptions.SearchString)
+                 || s.FullName.Contains(filterOptions.SearchString)
+                 || s.CapitalCity.Contains(filterOptions.SearchString)
+                 || s.Region.Contains(filterOptions.SearchString)
+                 || s.Currency.Contains(filterOptions.SearchString)
+                 || s.Language.Contains(filterOptions.SearchString)
+                );
+            }
+
+            switch (filterOptions.SortOrder)
+            {
+                case "FullName_asc":
+                    countries = countries.OrderBy(s => s.FullName);
+                    break;
+                case "FullName_desc":
+                    countries = countries.OrderByDescending(s => s.FullName);
+                    break;
+                case "Population_asc":
+                    countries = countries.OrderBy(s => s.Population);
+                    break;
+                case "Population_desc":
+                    countries = countries.OrderByDescending(s => s.Population);
+                    break;
+                case "CapitalCity_asc":
+                    countries = countries.OrderBy(s => s.CapitalCity);
+                    break;
+                case "CapitalCity_desc":
+                    countries = countries.OrderByDescending(s => s.CapitalCity);
+                    break;
+                default:  // Name ascending 
+                    countries = countries.OrderByDescending(s => s.Population);
+                    break;
+            }
+
+            var result = countries.ToPagedList(filterOptions.Page, filterOptions.PageSize);
+            var topFivePopulated = db.Countries.OrderByDescending(c => c.Population).Take(5);
+
+            return Json(new { data = result, total = countries.LongCount(), topFivePopulated = topFivePopulated } , JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
